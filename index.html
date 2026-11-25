@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="GGPRICE: compare preços de games, hardware e periféricos nas principais lojas e encontre o menor preço.">
+  <title>GGPRICE — Comparador de preços gamer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- 1. CABEÇALHO E MENU DE NAVEGAÇÃO [cabecalho]                  -->
+<!-- Contém: logo, menu, acessibilidade (fonte e tema) e conta.    -->
+<!-- ============================================================ -->
+<a class="link-pular" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="cabecalho">
+  <div class="container cabecalho__interno">
+
+    <a href="#/home" class="logo" aria-label="GGPRICE, página inicial">
+      <span class="logo__icone" aria-hidden="true">GG</span>
+      <span class="logo__texto">PRICE</span>
+    </a>
+
+    <button type="button" id="botaoMenu" class="botao-menu" aria-expanded="false" aria-controls="menuPrincipal">
+      <span aria-hidden="true">☰</span>
+      <span class="sr-only">Abrir menu</span>
+    </button>
+
+    <nav id="menuPrincipal" class="menu" aria-label="Navegação principal">
+      <ul class="menu__lista">
+        <li><a href="#/home" data-pagina="home">Início</a></li>
+        <li><a href="#/ofertas" data-pagina="ofertas">Ofertas</a></li>
+        <li><a href="#/categorias" data-pagina="categorias">Categorias</a></li>
+        <li><a href="#/favoritos" data-pagina="favoritos">Favoritos <span class="contador" id="contadorFavoritos" aria-label="0 favoritos">0</span></a></li>
+        <li><a href="#/alertas" data-pagina="alertas">Alertas</a></li>
+        <li><a href="#/contato" data-pagina="contato">Contato</a></li>
+        <li><a href="#/login" id="linkConta" class="menu__conta" data-pagina="login">Entrar</a></li>
+      </ul>
+    </nav>
+
+    <!-- Ferramentas de acessibilidade -->
+    <div class="ferramentas" role="group" aria-label="Acessibilidade e tema">
+      <button type="button" id="botaoFonteMenos" class="botao-ferramenta" aria-label="Diminuir tamanho da fonte">A−</button>
+      <button type="button" id="botaoFonteMais" class="botao-ferramenta" aria-label="Aumentar tamanho da fonte">A+</button>
+      <button type="button" id="botaoTema" class="botao-ferramenta" aria-pressed="false" aria-label="Ativar modo claro">
+        <span id="iconeTema" aria-hidden="true">☀</span>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+<main id="conteudo" class="principal" tabindex="-1">
+
+  <!-- ============================================================ -->
+  <!-- 2. PÁGINA INICIAL (HOME)                                      -->
+  <!-- ============================================================ -->
+  <section id="pagina-home" class="pagina" hidden>
+
+    <!-- ========================================================== -->
+    <!-- 2.1 BARRA DE PESQUISA [busca]                               -->
+    <!-- ========================================================== -->
+    <div class="hero">
+      <div class="container hero__interno">
+        <p class="hero__selo">Comparador de preços gamer</p>
+        <h1 class="hero__titulo">Encontre o <span class="destaque">menor preço</span> do universo gamer</h1>
+        <p class="hero__texto">
+          Pesquise consoles, placas de vídeo, periféricos e jogos e compare os valores
+          entre KaBuM!, Amazon, Mercado Livre, Pichau e outras lojas.
+        </p>
+
+        <form class="busca" id="formPesquisaHome" data-pesquisa role="search" novalidate>
+          <label for="searchInput" class="sr-only">Pesquisar produto</label>
+          <input type="search" id="searchInput" placeholder="Pesquise seu produto... ex.: RTX 4060" list="sugestoesProdutos" autocomplete="off">
+          <button type="submit" id="searchButton" class="botao botao--primario">Pesquisar</button>
+        </form>
+        <datalist id="sugestoesProdutos"></datalist>
+
+        <div class="recentes" id="pesquisasRecentesHome" hidden>
+          <span class="recentes__rotulo">Pesquisas recentes:</span>
+          <ul class="recentes__lista" id="listaPesquisasRecentes"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- ======================================================== -->
+      <!-- 2.2 CARROSSEL DE PRODUTOS EM DESTAQUE [carrossel]         -->
+      <!-- ======================================================== -->
+      <section class="secao" aria-labelledby="tituloCarrossel">
+        <h2 class="secao__titulo" id="tituloCarrossel">Produtos em destaque</h2>
+        <div class="carrossel" id="carrossel" role="region" aria-roledescription="carrossel" aria-label="Produtos em destaque">
+          <div class="carrossel__janela">
+            <div class="carrossel__trilho" id="carrosselTrilho"></div>
+          </div>
+          <div class="carrossel__controles">
+            <button type="button" class="botao botao--icone" id="carrosselAnterior" aria-label="Destaque anterior">‹</button>
+            <div class="carrossel__pontos" id="carrosselPontos"></div>
+            <button type="button" class="botao botao--icone" id="carrosselPausa" aria-label="Pausar rotação automática">❚❚</button>
+            <button type="button" class="botao botao--icone" id="carrosselProximo" aria-label="Próximo destaque">›</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 2.3 CATEGORIAS [categorias]                               -->
+      <!-- ======================================================== -->
+      <section class="secao" aria-labelledby="tituloCategoriasHome">
+        <h2 class="secao__titulo" id="tituloCategoriasHome">Categorias</h2>
+        <div class="grade-categorias" id="gradeCategoriasHome"></div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 2.4 PRODUTOS POPULARES [produtos]                         -->
+      <!-- ======================================================== -->
+      <section class="secao" aria-labelledby="tituloPopulares">
+        <h2 class="secao__titulo" id="tituloPopulares">Produtos populares</h2>
+        <div class="grade" id="gradePopulares"></div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 2.5 MELHORES OFERTAS (maior economia ao comparar lojas)   -->
+      <!-- ======================================================== -->
+      <section class="secao" aria-labelledby="tituloMelhoresOfertas">
+        <div class="secao__cabecalho">
+          <h2 class="secao__titulo" id="tituloMelhoresOfertas">Melhores ofertas</h2>
+          <a href="#/ofertas" class="link-ver-mais">Ver todas as ofertas →</a>
+        </div>
+        <p class="secao__texto">Produtos em que comparar lojas gera a maior economia em reais.</p>
+        <div class="grade" id="gradeMelhoresOfertas"></div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 2.6 MAIORES DESCONTOS                                     -->
+      <!-- ======================================================== -->
+      <section class="secao" aria-labelledby="tituloMaioresDescontos">
+        <h2 class="secao__titulo" id="tituloMaioresDescontos">Produtos com maiores descontos</h2>
+        <div class="grade" id="gradeMaioresDescontos"></div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 2.7 LANÇAMENTOS                                           -->
+      <!-- ======================================================== -->
+      <section class="secao" aria-labelledby="tituloLancamentos">
+        <h2 class="secao__titulo" id="tituloLancamentos">Lançamentos</h2>
+        <div class="grade" id="gradeLancamentos"></div>
+      </section>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- 3. PÁGINA DE RESULTADOS E COMPARAÇÃO DE PREÇOS [comparacao]   -->
+  <!-- ============================================================ -->
+  <section id="pagina-resultados" class="pagina" hidden>
+    <div class="container">
+      <h1 class="pagina__titulo">Comparar preços</h1>
+
+      <form class="busca busca--compacta" id="formPesquisaResultados" data-pesquisa role="search" novalidate>
+        <label for="campoPesquisaResultados" class="sr-only">Pesquisar produto</label>
+        <input type="search" id="campoPesquisaResultados" placeholder="Pesquise seu produto..." list="sugestoesProdutos" autocomplete="off">
+        <button type="submit" class="botao botao--primario">Pesquisar</button>
+      </form>
+
+      <div class="filtros">
+        <div class="filtros__item">
+          <label for="filtroCategoriaResultados">Categoria</label>
+          <select id="filtroCategoriaResultados"></select>
+        </div>
+        <div class="filtros__item">
+          <label for="ordemResultados">Ordenar por</label>
+          <select id="ordemResultados">
+            <option value="menor-preco">Menor preço</option>
+            <option value="maior-preco">Maior preço</option>
+            <option value="maior-economia">Maior economia entre lojas</option>
+            <option value="nome">Nome (A–Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="resumo" id="resumoResultados" role="status" aria-live="polite"></p>
+      <div class="lista-resultados" id="listaResultados"></div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- 4. PÁGINA DE CATEGORIAS [paginacategorias]                    -->
+  <!-- ============================================================ -->
+  <section id="pagina-categorias" class="pagina" hidden>
+    <div class="container">
+      <h1 class="pagina__titulo">Categorias</h1>
+      <div class="grade-categorias" id="gradeCategorias"></div>
+      <div id="conteudoCategorias"></div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- 5. PÁGINA INDIVIDUAL DO PRODUTO [produto]                     -->
+  <!-- O conteúdo é montado pelo JavaScript (renderizarProduto).     -->
+  <!-- ============================================================ -->
+  <section id="pagina-produto" class="pagina" hidden>
+    <div class="container" id="conteudoProduto"></div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- 6. PÁGINA DE OFERTAS [ofertas]                                -->
+  <!-- ============================================================ -->
+  <section id="pagina-ofertas" class="pagina" hidden>
+    <div class="container">
+      <h1 class="pagina__titulo">Ofertas</h1>
+      <p class="aviso-caixa">Venha conferir <strong>as melhores ofertas</strong>.</p>
+
+      <div class="filtros">
+        <div class="filtros__item">
+          <label for="filtroCategoriaOfertas">Categoria</label>
+          <select id="filtroCategoriaOfertas"></select>
+        </div>
+        <div class="filtros__item">
+          <label for="ordemOfertas">Ordenar por</label>
+          <select id="ordemOfertas">
+            <option value="maior-desconto">Maior desconto</option>
+            <option value="menor-preco">Menor preço</option>
+            <option value="maior-economia">Maior economia entre lojas</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="resumo" id="resumoOfertas" role="status" aria-live="polite"></p>
+      <div class="grade" id="gradeOfertas"></div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- 7. PÁGINA DE FAVORITOS [favoritos]                            -->
+  <!-- ============================================================ -->
+  <section id="pagina-favoritos" class="pagina" hidden>
+    <div class="container">
+      <h1 class="pagina__titulo">Meus favoritos</h1>
+      <p class="secao__texto">Seus favoritos ficam salvos neste navegador (localStorage), mesmo após atualizar a página.</p>
+      <div class="grade" id="gradeFavoritos"></div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- 8. PÁGINA DE ALERTAS DE PREÇO [alertas]                       -->
+  <!-- ============================================================ -->
+  <section id="pagina-alertas" class="pagina" hidden>
+    <div class="container">
+      <h1 class="pagina__titulo">Alertas de preço</h1>
+      <p class="aviso-caixa">
+        Seus alertas ficam salvos neste navegador e o status de cada um aparece nesta página.
+      </p>
+
+      <div class="duas-colunas">
+        <form class="formulario cartao" id="formAlerta" novalidate>
+          <h2 class="cartao__titulo">Criar alerta</h2>
+
+          <div class="campo">
+            <label for="alertaProduto">Produto</label>
+            <select id="alertaProduto" required aria-describedby="erro-alertaProduto"></select>
+            <p class="campo__erro" id="erro-alertaProduto"></p>
+          </div>
+
+          <p class="alerta__atual">Preço atual (menor encontrado): <strong id="alertaPrecoAtual">—</strong></p>
+
+          <div class="campo">
+            <label for="alertaPreco">Preço desejado (R$)</label>
+            <input type="number" id="alertaPreco" min="0.01" step="0.01" inputmode="decimal" placeholder="Ex.: 1599.00" required aria-describedby="erro-alertaPreco">
+            <p class="campo__erro" id="erro-alertaPreco"></p>
+          </div>
+
+          <button type="submit" class="botao botao--primario">Criar alerta</button>
+        </form>
+
+        <div>
+          <h2 class="cartao__titulo">Meus alertas</h2>
+          <div id="listaAlertas"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- 9. LOGIN E CADASTRO [login]                                   -->
+  <!-- ============================================================ -->
+  <section id="pagina-login" class="pagina" hidden>
+    <div class="container">
+      <div class="login cartao">
+        <h1 class="pagina__titulo pagina__titulo--centro">Acesse sua conta</h1>
+        <p class="aviso-caixa">
+          Sua conta fica salva apenas neste navegador. Não use uma senha que você utiliza em outros sites.
+        </p>
+
+        <div class="abas" role="tablist" aria-label="Acesso à conta">
+          <button type="button" role="tab" id="aba-entrar" class="aba" data-aba="entrar" aria-selected="true" aria-controls="painel-entrar">Entrar</button>
+          <button type="button" role="tab" id="aba-cadastrar" class="aba" data-aba="cadastrar" aria-selected="false" aria-controls="painel-cadastrar" tabindex="-1">Cadastrar</button>
+        </div>
+
+        <!-- Painel: Entrar -->
+        <div id="painel-entrar" role="tabpanel" aria-labelledby="aba-entrar">
+          <form class="formulario" id="formEntrar" novalidate>
+            <div class="campo">
+              <label for="entrarEmail">E-mail</label>
+              <input type="email" id="entrarEmail" autocomplete="email" required aria-describedby="erro-entrarEmail">
+              <p class="campo__erro" id="erro-entrarEmail"></p>
+            </div>
+            <div class="campo">
+              <label for="entrarSenha">Senha</label>
+              <input type="password" id="entrarSenha" autocomplete="current-password" required aria-describedby="erro-entrarSenha">
+              <p class="campo__erro" id="erro-entrarSenha"></p>
+            </div>
+            <button type="submit" class="botao botao--primario botao--cheio">Entrar</button>
+            <button type="button" class="botao-link" data-aba="recuperar">Esqueci minha senha</button>
+          </form>
+        </div>
+
+        <!-- Painel: Cadastrar -->
+        <div id="painel-cadastrar" role="tabpanel" aria-labelledby="aba-cadastrar" hidden>
+          <form class="formulario" id="formCadastro" novalidate>
+            <div class="campo">
+              <label for="cadNome">Nome</label>
+              <input type="text" id="cadNome" autocomplete="name" required aria-describedby="erro-cadNome">
+              <p class="campo__erro" id="erro-cadNome"></p>
+            </div>
+            <div class="campo">
+              <label for="cadEmail">E-mail</label>
+              <input type="email" id="cadEmail" autocomplete="email" required aria-describedby="erro-cadEmail">
+              <p class="campo__erro" id="erro-cadEmail"></p>
+            </div>
+            <div class="campo">
+              <label for="cadSenha">Senha (mínimo de 8 caracteres)</label>
+              <input type="password" id="cadSenha" autocomplete="new-password" required aria-describedby="erro-cadSenha">
+              <p class="campo__erro" id="erro-cadSenha"></p>
+            </div>
+            <div class="campo">
+              <label for="cadConfirma">Confirmação de senha</label>
+              <input type="password" id="cadConfirma" autocomplete="new-password" required aria-describedby="erro-cadConfirma">
+              <p class="campo__erro" id="erro-cadConfirma"></p>
+            </div>
+            <button type="submit" class="botao botao--primario botao--cheio">Cadastrar</button>
+          </form>
+        </div>
+
+        <!-- Painel: Recuperar senha -->
+        <div id="painel-recuperar" role="tabpanel" aria-label="Recuperar senha" hidden>
+          <form class="formulario" id="formRecuperar" novalidate>
+            <h2 class="cartao__titulo">Recuperar senha</h2>
+            <div class="campo">
+              <label for="recEmail">E-mail cadastrado</label>
+              <input type="email" id="recEmail" autocomplete="email" required aria-describedby="erro-recEmail">
+              <p class="campo__erro" id="erro-recEmail"></p>
+            </div>
+            <button type="submit" class="botao botao--primario botao--cheio">Enviar instruções</button>
+            <button type="button" class="botao-link" data-aba="entrar">Voltar para o login</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- 10. PERFIL DO USUÁRIO [perfil]                                -->
+  <!-- O conteúdo é montado pelo JavaScript (renderizarPerfil).      -->
+  <!-- ============================================================ -->
+  <section id="pagina-perfil" class="pagina" hidden>
+    <div class="container" id="conteudoPerfil"></div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- 11. FORMULÁRIO DE CONTATO [formularios]                       -->
+  <!-- ============================================================ -->
+  <section id="pagina-contato" class="pagina" hidden>
+    <div class="container">
+      <h1 class="pagina__titulo">Contato</h1>
+      <p class="secao__texto">Dúvidas, sugestões ou parcerias? Envie sua mensagem. (A mensagem fica salva neste navegador.)</p>
+
+      <form class="formulario cartao formulario--largo" id="formContato" novalidate>
+        <div class="campo">
+          <label for="contatoNome">Nome</label>
+          <input type="text" id="contatoNome" autocomplete="name" required aria-describedby="erro-contatoNome">
+          <p class="campo__erro" id="erro-contatoNome"></p>
+        </div>
+        <div class="campo">
+          <label for="contatoEmail">E-mail</label>
+          <input type="email" id="contatoEmail" autocomplete="email" required aria-describedby="erro-contatoEmail">
+          <p class="campo__erro" id="erro-contatoEmail"></p>
+        </div>
+        <div class="campo">
+          <label for="contatoAssunto">Assunto</label>
+          <select id="contatoAssunto" required aria-describedby="erro-contatoAssunto">
+            <option value="">Selecione...</option>
+            <option>Dúvida</option>
+            <option>Sugestão</option>
+            <option>Problema no site</option>
+            <option>Parceria com lojas</option>
+          </select>
+          <p class="campo__erro" id="erro-contatoAssunto"></p>
+        </div>
+        <div class="campo">
+          <label for="contatoMensagem">Mensagem</label>
+          <textarea id="contatoMensagem" rows="5" required aria-describedby="erro-contatoMensagem"></textarea>
+          <p class="campo__erro" id="erro-contatoMensagem"></p>
+        </div>
+        <button type="submit" class="botao botao--primario">Enviar mensagem</button>
+        <p class="sucesso" id="contatoSucesso" role="status" hidden></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+
+<!-- ============================================================ -->
+<!-- 12. RODAPÉ [rodape]                                           -->
+<!-- ============================================================ -->
+<footer class="rodape">
+  <div class="container">
+    <div class="rodape__grade">
+      <div>
+        <a href="#/home" class="logo" aria-label="GGPRICE, página inicial">
+          <span class="logo__icone" aria-hidden="true">GG</span>
+          <span class="logo__texto">PRICE</span>
+        </a>
+        <p class="rodape__texto">Plataforma de comparação de preços do universo gamer e tecnológico.</p>
+      </div>
+      <nav aria-label="Rodapé: navegação">
+        <h2 class="rodape__titulo">Navegação</h2>
+        <ul>
+          <li><a href="#/home">Início</a></li>
+          <li><a href="#/ofertas">Ofertas</a></li>
+          <li><a href="#/categorias">Categorias</a></li>
+          <li><a href="#/favoritos">Favoritos</a></li>
+          <li><a href="#/alertas">Alertas de preço</a></li>
+          <li><a href="#/contato">Contato</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Rodapé: categorias">
+        <h2 class="rodape__titulo">Categorias</h2>
+        <ul id="rodapeCategorias"></ul>
+      </nav>
+      <div>
+        <h2 class="rodape__titulo">Lojas comparadas</h2>
+        <ul id="rodapeLojas" class="rodape__lojas"></ul>
+      </div>
+    </div>
+    <p class="rodape__aviso">
+      Valores meramente ilustrativos: confirme o preço no site da loja.
+      O GGPRICE não possui vínculo com as lojas citadas.
+    </p>
+    <p class="rodape__copy">© <span id="anoAtual"></span> GGPRICE. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+
+<!-- ============================================================ -->
+<!-- 13. ÁREA DE AVISOS (mensagens temporárias) [avisos]           -->
+<!-- ============================================================ -->
+<div class="avisos" id="avisos" role="status" aria-live="polite"></div>
+
+
+<!-- ============================================================ -->
+<!-- 14. SCRIPTS                                                   -->
+<!-- data.js precisa vir ANTES do script.js.     -->
+<!-- ============================================================ -->
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
