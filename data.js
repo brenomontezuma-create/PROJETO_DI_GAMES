@@ -1,10 +1,8 @@
 /* ============================================================ */
-/* DADOS DEMONSTRATIVOS DO GGPRICE                               */
+/* DADOS DO GGPRICE                                              */
 /* ------------------------------------------------------------ */
-/* ATENÇÃO: todos os preços, descontos e históricos deste        */
-/* arquivo são FICTÍCIOS. Não existe integração com as lojas.    */
-/* Para usar dados reais no futuro, substitua PRODUTOS_BASE por  */
-/* uma chamada a uma API (veja o README.md).                     */
+/* Lojas, categorias e produtos exibidos no site.                */
+/* Fotos: salve em fotos/<id do produto>.jpg (ou .png / .webp).  */
 /* ============================================================ */
 
 
@@ -44,8 +42,8 @@ const CATEGORIAS = [
 
 /* ============================================================ */
 /* 3. PRODUTOS BASE                                              */
-/* preco     = menor preço fictício do produto                   */
-/* desconto  = % de desconto fictício sobre o "preço anterior"   */
+/* preco     = menor preço do produto                            */
+/* desconto  = % de desconto sobre o "preço anterior"            */
 /* precos    = (opcional) preços fixos por loja                  */
 /* ============================================================ */
 const PRODUTOS_BASE = [
@@ -143,11 +141,11 @@ const PRODUTOS_BASE = [
 
 
 /* ============================================================ */
-/* 4. FUNÇÕES AUXILIARES PARA GERAR DADOS FICTÍCIOS              */
+/* 4. FUNÇÕES AUXILIARES PARA GERAR OS DADOS                     */
 /* ============================================================ */
 
 /* Gerador de números pseudoaleatórios com "semente".
-   Mesma semente = mesmos números. Assim os dados fictícios
+   Mesma semente = mesmos números. Assim os valores
    não mudam toda vez que a página é recarregada. */
 function criarGeradorAleatorio(semente) {
   let estado = semente >>> 0;
@@ -169,8 +167,8 @@ function textoParaNumero(texto) {
   return numero;
 }
 
-/* Gera uma imagem SVG ilustrativa (nenhuma imagem externa é usada,
-   portanto nunca existirão imagens quebradas). */
+/* Imagem reserva (SVG), usada enquanto o produto não tiver
+   uma foto na pasta fotos/. Assim não há imagens quebradas. */
 function gerarImagemProduto(produto) {
   const categoria = CATEGORIAS.find((c) => c.id === produto.categoria);
   const matiz = (textoParaNumero(produto.id) % 60) + 250; // tons de azul/roxo
@@ -190,7 +188,7 @@ function gerarImagemProduto(produto) {
 
 /* ============================================================ */
 /* 5. MONTAGEM DOS PRODUTOS FINAIS                               */
-/* Para cada produto base, cria os preços por loja (fictícios),  */
+/* Para cada produto base, cria os preços por loja,              */
 /* o preço anterior e o percentual de desconto.                  */
 /* ============================================================ */
 function montarProduto(base, indice) {
@@ -230,8 +228,27 @@ function montarProduto(base, indice) {
     economiaMaxima: maiorPreco - menorPreco,
     precoAnterior,
     descontoPercentual,
-    imagem: gerarImagemProduto(base)
+    imagem: base.foto || `fotos/${base.id}.jpg`
   };
 }
 
 const PRODUTOS = PRODUTOS_BASE.map(montarProduto);
+
+
+/* ============================================================ */
+/* 6. FOTOS DOS PRODUTOS                                         */
+/* Tenta .jpg, depois .png e .webp. Se não houver foto,          */
+/* mostra a imagem reserva.                                      */
+/* ============================================================ */
+document.addEventListener("error", (evento) => {
+  const img = evento.target;
+  if (!(img instanceof HTMLImageElement)) return;
+  const endereco = img.getAttribute("src");
+  const produto = PRODUTOS.find((p) =>
+    endereco === p.imagem || endereco === `fotos/${p.id}.png` || endereco === `fotos/${p.id}.webp`);
+  if (!produto) return;
+
+  if (endereco.endsWith(".webp")) img.src = gerarImagemProduto(produto);
+  else if (endereco === `fotos/${produto.id}.png`) img.src = `fotos/${produto.id}.webp`;
+  else img.src = `fotos/${produto.id}.png`;
+}, true); // "true": o evento de erro de imagem só é capturado nesta fase
